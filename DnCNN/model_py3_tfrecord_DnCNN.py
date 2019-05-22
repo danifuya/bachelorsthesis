@@ -115,7 +115,7 @@ class denoiser(object):
         load_model_status, global_step = self.load(ckpt_dir)
         assert load_model_status == True, '[!] Load weights FAILED...'
         print("[*] Load weights SUCCESS...")
-        for run in range(2): # for accurate running time evaluation, warming-up
+        for run in range(0): # for accurate running time evaluation, warming-up
             psnr_sum = 0
             psnr_initial_sum = 0
             test_sum = 0

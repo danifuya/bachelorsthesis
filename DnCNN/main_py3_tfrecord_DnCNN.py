@@ -20,7 +20,7 @@ parser.add_argument('--checkpoint_dir', dest='ckpt_dir', default='./checkpoint',
 parser.add_argument('--sample_dir', dest='sample_dir', default='./sample', help='sample are saved here')
 parser.add_argument('--test_dir', dest='test_dir', default='./test', help='test sample are saved here')
 parser.add_argument('--eval_set', dest='eval_set', default='test', help='dataset for eval in training')
-parser.add_argument('--test_set', dest='test_set', default='deblocking', help='dataset for testing')
+parser.add_argument('--test_set', dest='test_set', default='test', help='dataset for testing')
 args = parser.parse_args()
 
 #weigth decay momentum optimizer
@@ -36,8 +36,8 @@ def denoiser_train(denoiser, lr, eval_every_step, patch_size):
     denoiser.train(img_labelBatch, img_bayerBatch, eval_data_gt, eval_data_bl, batch_size=args.batch_size, ckpt_dir=args.ckpt_dir, lr=lr, sample_dir=args.sample_dir, eval_every_step=eval_every_step)
 
 def denoiser_test(denoiser):
-    test_files_gt = glob('./test/{}/groundtruth/*'.format(args.test_set))
-    test_files_bl = glob('./test/{}/compressed/*'.format(args.test_set))
+    test_files_gt =  glob('./images/{}/groundtruth/*'.format(args.test_set))
+    test_files_bl =  glob(('./images/{}/compressed_Q' + args.quantization_step +'/*').format(args.test_set))
     denoiser.test(test_files_gt, test_files_bl, ckpt_dir=args.ckpt_dir, save_dir=args.test_dir)
 
 def ensemble_test(denoiser):
@@ -54,7 +54,7 @@ def main(_):
     if not os.path.exists(args.test_dir):
         os.makedirs(args.test_dir)
     if args.use_gpu:
-        print("GPU\n")
+        print("GPU\n") 
         os.environ["CUDA_VISIBLE_DEVICES"] = args.num_gpu
         gpu_options = tf.GPUOptions(allow_growth = True) #gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.95)
         with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
@@ -66,7 +66,7 @@ def main(_):
                 # learning rate strategy
                 iter_epoch = numPatches//args.batch_size
                 iter_all = args.epoch*iter_epoch
-                lr = args.lr * np.ones(iter_all) 
+                lr = args.lr*np.ones(iter_all) 
                 # lr[iter_epoch*5:] = lr[0] / 2.0
                 # lr[iter_epoch*10:] = lr[0] / 10.0
                 # lr[iter_epoch*15:] = lr[0] / 20.0
@@ -78,9 +78,8 @@ def main(_):
                 # lr[iter_epoch*45:] = lr[0] / 10000.0
 
                 #decay exponentially from 1e-1 to 1e-4 for the 50 epochs.
-                for epoch in range (1, args.epoch+1):
-                    lr[iter_epoch*epoch:] = lr[0] * math.pow(10,-0.08*epoch)
-                    #lr[iter_epoch*epoch:] = lr[0] * math.exp(-0.08*epoch)
+                for epoch in range (1, args.epoch):
+                    lr[iter_epoch*epoch:] = lr[0] * math.pow(10,-(3/49)*epoch)
                 denoiser_train(model, lr=lr, eval_every_step=iter_epoch, patch_size=args.patch_size)
             elif args.phase == 'test':
                 denoiser_test(model)
