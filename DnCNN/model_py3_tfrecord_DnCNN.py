@@ -93,7 +93,7 @@ class denoiser(object):
                 print("Training: [%4d/%4d] Speed: %4.2fimgs/s, loss: %.6f" % (step + 1, numStep, batch_size/(time.time() - start_time), loss))
                 iter_num += 1
                 #was set to 1000
-                if np.mod(step+1, 30) == 0:
+                if np.mod(step+1, eval_every_step) == 0:
                     train_writer.add_summary(train_summary, iter_num)
                 if np.mod(step + 1, eval_every_step) == 0:# save check points, evaluation
                     self.evaluate(iter_num, eval_data_gt, eval_data_bl, sample_dir=sample_dir, summary_merged=val_summary_psnr, summary_writer=val_writer)
