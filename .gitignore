@@ -4,6 +4,15 @@ __pycache__
 logs
 checkpoint
 prueba.py
-compressJPG
-crop
+compressJPG.m
+crop.m
 DnCNN/test/
+CBSD68
+compressed_Q20_extratest
+compressed_Q20_fast
+groundtruth_extratest
+groundtruth_fast
+kodak24
+McM
+matlab.m
+untitled.m
