@@ -13,10 +13,10 @@ parser.add_argument('--src_dir_bayer', dest='src_dir_bayer', default='../images/
 parser.add_argument('--Q', dest='quantization_step', default='20', help='quantization step ')
 parser.add_argument('--save_dir', dest='save_dir', default='./patches', help='dir of patches')
 parser.add_argument('--patch_size', dest='pat_size', type=int, default=50, help='patch size')
-parser.add_argument('--stride', dest='stride', type=int, default=50, help='stride')
+parser.add_argument('--stride', dest='stride', type=int, default=7, help='stride')
 parser.add_argument('--step', dest='step', type=int, default=0, help='step')
 parser.add_argument('--batch_size', dest='bat_size', type=int, default=128, help='batch size')
-parser.add_argument('--augment', dest='DATA_AUG_TIMES', type=int, default=1, help='data augmentation')
+parser.add_argument('--augment', dest='DATA_AUG_TIMES', type=int, default=3, help='data augmentation')
 # check output arguments
 parser.add_argument('--Train_tfrecord', dest='tfRecord_train', default='subpixel_deblocking.tfrecords', help='training record file')
 parser.add_argument('--debug', dest='isDebug', type=bool, default=False, help='Debug Mode')
