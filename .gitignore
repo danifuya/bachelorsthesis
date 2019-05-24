@@ -1,9 +1,9 @@
 patches
 sample
 __pycache__
-test
 logs
 checkpoint
 prueba.py
 compressJPG
 crop
+DnCNN/test/
