@@ -27,7 +27,7 @@ def generate_patches():
     filepaths = sorted(glob.glob(args.src_dir + '/*'))
     filepaths_bayer = sorted(glob.glob(args.src_dir_bayer + args.quantization_step + '/*'))
     if isDebug:
-        numDebug = 5
+        numDebug = 1
         filepaths = filepaths[:numDebug] # take only ten images to quickly debug
         filepaths_bayer = filepaths_bayer[:numDebug]
     print("number of training images %d" % len(filepaths))
