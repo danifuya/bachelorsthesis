@@ -79,7 +79,7 @@ def main(_):
 
                 #decay exponentially from 1e-1 to 1e-4 for the 50 epochs.
                 for epoch in range (1, args.epoch):
-                    lr[iter_epoch*epoch:] = lr[0] * math.pow(10,-(3/49)*epoch)
+                    lr[iter_epoch*epoch:] = lr[0] * math.pow(10.0,-(3.0/49.0)*epoch)
                 denoiser_train(model, lr=lr, eval_every_step=iter_epoch, patch_size=args.patch_size)
             elif args.phase == 'test':
                 denoiser_test(model)
