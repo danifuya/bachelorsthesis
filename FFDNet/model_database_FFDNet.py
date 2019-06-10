@@ -50,7 +50,7 @@ def subpixel_new(input, is_training=True):# original structure with regularizer
                 output = tf.nn.relu(tf.layers.batch_normalization(output, moving_variance_initializer=tf.zeros_initializer(), epsilon=1e-5, training=is_training))
         with tf.variable_scope('block12'):
             output = tf.layers.conv2d(output, 12, 3, padding='same', kernel_initializer=My_initial, kernel_regularizer=My_regular)#batch*50*50*12
-            #S1InterRGB = R4G4B4 + output
+            S1InterRGB = R4G4B4 + output
             #Non residual learning
-            S1InterRGB = output
+            #S1InterRGB = output
     return subpixel_LR2HR(S1InterRGB)
