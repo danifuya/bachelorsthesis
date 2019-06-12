@@ -4,7 +4,7 @@ from glob import glob
 import tensorflow as tf
 import math
 
-from model_py3_tfrecord_FFDNet import denoiser
+from model_py3_tfrecord_FastARCNN import denoiser
 from utils_py3_tfrecord import *
 
 parser = argparse.ArgumentParser(description='')
@@ -12,7 +12,8 @@ parser.add_argument('--epoch', dest='epoch', type=int, default=50, help='# of ep
 parser.add_argument('--Q', dest='quantization_step', default='20', help='quantization step ')
 parser.add_argument('--batch_size', dest='batch_size', type=int, default=128, help='# images in batch')
 parser.add_argument('--lr', dest='lr', type=float, default=math.pow(10,-3), help='initial learning rate for adam')
-parser.add_argument('--patch_size', dest='patch_size', type=int, default=50, help='patch size')
+#parser.add_argument('--lr2', dest='lr2', type=float, default=5*math.pow(10,-5), help='initial learning rate for adam')
+parser.add_argument('--patch_size', dest='patch_size', type=int, default=24, help='patch size')
 parser.add_argument('--use_gpu', dest='use_gpu', type=int, default=1, help='gpu flag, 1 for GPU and 0 for CPU')
 parser.add_argument('--gpu', dest='num_gpu', type=str, default="0", help='choose which gpu')
 parser.add_argument('--phase', dest='phase', default='train', help='train or test')
@@ -20,7 +21,7 @@ parser.add_argument('--checkpoint_dir', dest='ckpt_dir', default='./checkpoint',
 parser.add_argument('--sample_dir', dest='sample_dir', default='./sample', help='sample are saved here')
 parser.add_argument('--test_dir', dest='test_dir', default='./test', help='test sample are saved here')
 parser.add_argument('--eval_set', dest='eval_set', default='test', help='dataset for eval in training')
-parser.add_argument('--test_set', dest='test_set', default='test', help='dataset for testing')
+parser.add_argument('--test_set', dest='test_set', default='deblocking', help='dataset for testing')
 args = parser.parse_args()
 
 #weigth decay momentum optimizer
@@ -36,8 +37,8 @@ def denoiser_train(denoiser, lr, eval_every_step, patch_size):
     denoiser.train(img_labelBatch, img_bayerBatch, eval_data_gt, eval_data_bl, batch_size=args.batch_size, ckpt_dir=args.ckpt_dir, lr=lr, sample_dir=args.sample_dir, eval_every_step=eval_every_step)
 
 def denoiser_test(denoiser):
-    test_files_gt = glob('../images/{}/groundtruth/*'.format(args.test_set))
-    test_files_bl =glob(('../images/{}/compressed_Q' + args.quantization_step +'/*').format(args.test_set))
+    test_files_gt = glob('../test/{}/groundtruth/*'.format(args.test_set))
+    test_files_bl = glob('../test/{}/compressed/*'.format(args.test_set))
     denoiser.test(test_files_gt, test_files_bl, ckpt_dir=args.ckpt_dir, save_dir=args.test_dir)
 
 def ensemble_test(denoiser):
@@ -71,9 +72,9 @@ def main(_):
                 lr[iter_epoch*20:] = lr[0] / 10.0
                 lr[iter_epoch*30:] = lr[0] / 20.0
                 lr[iter_epoch*40:] = lr[0] / 100.0
-                #lr[iter_epoch*35:] = lr[0] / 200.0
-                #lr[iter_epoch*42:] = lr[0] / 1000.0
                                
+               # for epoch in range (1, args.epoch):
+                 #   lr[iter_epoch*epoch:] = lr[0] * math.pow(10.0,-(3.0/49.0)*epoch)
                 denoiser_train(model, lr=lr, eval_every_step=iter_epoch, patch_size=args.patch_size)
             elif args.phase == 'test':
                 denoiser_test(model)
