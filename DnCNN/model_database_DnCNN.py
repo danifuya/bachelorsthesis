@@ -39,6 +39,7 @@ def subpixel_new(input, is_training=True):# original structure with regularizer
     #Delving deep into rectifiers initialization
     My_initial = tf.contrib.layers.variance_scaling_initializer()
     My_regular = tf.contrib.layers.l2_regularizer(scale=0.0001)
+    #My_regular=None
     with tf.variable_scope('Pre_processing'):
         R4G4B4 = subpixel_HR2LR_new(input)
     with tf.variable_scope('stage1'):

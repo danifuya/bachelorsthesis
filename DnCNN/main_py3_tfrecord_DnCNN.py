@@ -10,8 +10,9 @@ from utils_py3_tfrecord import *
 parser = argparse.ArgumentParser(description='')
 parser.add_argument('--epoch', dest='epoch', type=int, default=50, help='# of epoch')
 parser.add_argument('--Q', dest='quantization_step', default='20', help='quantization step ')
+parser.add_argument('--optimizer', dest='optimizer', default='Adam', help='optimizer')
 parser.add_argument('--batch_size', dest='batch_size', type=int, default=128, help='# images in batch')
-parser.add_argument('--lr', dest='lr', type=float, default=math.pow(10,-1), help='initial learning rate for adam')
+parser.add_argument('--lr', dest='lr', type=float, default=math.pow(10,-3), help='initial learning rate for adam')
 parser.add_argument('--patch_size', dest='patch_size', type=int, default=50, help='patch size')
 parser.add_argument('--use_gpu', dest='use_gpu', type=int, default=1, help='gpu flag, 1 for GPU and 0 for CPU')
 parser.add_argument('--gpu', dest='num_gpu', type=str, default="0", help='choose which gpu')
@@ -58,7 +59,7 @@ def main(_):
         os.environ["CUDA_VISIBLE_DEVICES"] = args.num_gpu
         gpu_options = tf.GPUOptions(allow_growth = True) #gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.95)
         with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
-            model = denoiser(sess, batch_size = args.batch_size, patch_size=args.patch_size)
+            model = denoiser(sess, optimizer=args.optimizer, batch_size = args.batch_size, patch_size=args.patch_size)
             if args.phase == 'train':
                 numPatches = 0
                 for record in tf.python_io.tf_record_iterator('./patches/subpixel_deblocking.tfrecords'):
@@ -67,19 +68,17 @@ def main(_):
                 iter_epoch = numPatches//args.batch_size
                 iter_all = args.epoch*iter_epoch
                 lr = args.lr*np.ones(iter_all) 
-                # lr[iter_epoch*5:] = lr[0] / 2.0
-                # lr[iter_epoch*10:] = lr[0] / 10.0
-                # lr[iter_epoch*15:] = lr[0] / 20.0
-                # lr[iter_epoch*20:] = lr[0] / 100.0
-                # lr[iter_epoch*25:] = lr[0] / 200.0
-                # lr[iter_epoch*30:] = lr[0] / 1000.0
-                # lr[iter_epoch*35:] = lr[0] / 2000.0
-                # lr[iter_epoch*40:] = lr[0] / 10000.0
-                # lr[iter_epoch*45:] = lr[0] / 10000.0
+                if args.optimizer=='Adam':
+                   lr[iter_epoch*10:] = lr[0] / 2.0
+                   lr[iter_epoch*20:] = lr[0] / 10.0
+                   lr[iter_epoch*30:] = lr[0] / 20.0
+                   lr[iter_epoch*40:] = lr[0] / 100.0
 
-                #decay exponentially from 1e-1 to 1e-4 for the 50 epochs.
-                for epoch in range (1, args.epoch):
-                    lr[iter_epoch*epoch:] = lr[0] * math.pow(10.0,-(3.0/49.0)*epoch)
+                elif args.optimizer=='SGD':
+                    #decay exponentially from 1e-1 to 1e-4 for the 50 epochs.
+                    for epoch in range (1, args.epoch):
+                        lr[iter_epoch*epoch:] = lr[0] * math.pow(10.0,-(3.0/49.0)*epoch)
+
                 denoiser_train(model, lr=lr, eval_every_step=iter_epoch, patch_size=args.patch_size)
             elif args.phase == 'test':
                 denoiser_test(model)

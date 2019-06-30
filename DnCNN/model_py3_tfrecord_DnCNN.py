@@ -4,7 +4,7 @@ from utils_py3_tfrecord import *
 from model_database_DnCNN import *
 
 class denoiser(object):
-    def __init__(self, sess, input_c_dim=3, batch_size=64, patch_size=160):
+    def __init__(self, sess, optimizer='Adam',input_c_dim=3, batch_size=64, patch_size=160):
         self.sess = sess
         self.input_c_dim = input_c_dim
         self.Y_ = tf.placeholder(tf.float32, [None, None, None, self.input_c_dim], name='GroundTruth') # ground truth
@@ -19,10 +19,14 @@ class denoiser(object):
         self.loss = tf.add_n([self.lossRGB] + self.reg_losses)
 
         self.eva_psnr = tf_psnr(self.Y, self.Y_)
-        #optimizer = tf.train.AdamOptimizer(self.lr, name='AdamOptimizer')
+        if optimizer=='Adam':
+            optimizer = tf.train.AdamOptimizer(self.lr, name='AdamOptimizer')
+
+        #SGD + momentum       
+        elif optimizer=='SGD':
        #optimizer = tf.keras.optimizers.SGD(self.lr, momentum=0.9, decay=0.0001)
        #optimizer= tf.train.GradientDescentOptimizer(self.lr, name='GradientDescent')
-        optimizer=tf.train.MomentumOptimizer(self.lr, momentum=0.9)
+            optimizer=tf.train.MomentumOptimizer(self.lr, momentum=0.9)
 
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS) # for BN?
         with tf.control_dependencies(update_ops):
@@ -115,7 +119,7 @@ class denoiser(object):
         load_model_status, global_step = self.load(ckpt_dir)
         assert load_model_status == True, '[!] Load weights FAILED...'
         print("[*] Load weights SUCCESS...")
-        for run in range(0): # for accurate running time evaluation, warming-up
+        for run in range(1): # for accurate running time evaluation, warming-up
             psnr_sum = 0
             psnr_initial_sum = 0
             test_sum = 0
