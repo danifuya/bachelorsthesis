@@ -37,8 +37,8 @@ def denoiser_train(denoiser, lr, eval_every_step, patch_size):
     denoiser.train(img_labelBatch, img_bayerBatch, eval_data_gt, eval_data_bl, batch_size=args.batch_size, ckpt_dir=args.ckpt_dir, lr=lr, sample_dir=args.sample_dir, eval_every_step=eval_every_step)
 
 def denoiser_test(denoiser):
-    test_files_gt = glob('../test/{}/groundtruth/*'.format(args.test_set))
-    test_files_bl = glob('../test/{}/compressed/*'.format(args.test_set))
+    test_files_gt = glob('../images/{}/groundtruth/*'.format(args.test_set))
+    test_files_bl =  glob(('../images/{}/compressed_Q' + args.quantization_step +'/*').format(args.test_set))
     denoiser.test(test_files_gt, test_files_bl, ckpt_dir=args.ckpt_dir, save_dir=args.test_dir)
 
 def ensemble_test(denoiser):

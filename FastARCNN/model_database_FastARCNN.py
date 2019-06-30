@@ -62,11 +62,12 @@ def subpixel_new(input, is_training=True):# original structure with regularizer
     stride=2
 
     #My_initial = tf.contrib.layers.variance_scaling_initializer()
-    My_initial = tf.initializers.truncated_normal(stddev=0.001)
-    My_regular = None
+    My_initial = tf.contrib.layers.variance_scaling_initializer()
+    My_regular = tf.contrib.layers.l2_regularizer(scale=0.0001)
     #same as ARCNN but with stride
-    with tf.variable_scope('Pre_processing'):
-        R4G4B4 = subpixel_HR2LR_new(input)
+    # with tf.variable_scope('Pre_processing'):
+    #     R4G4B4 = subpixel_HR2LR_new(input)
+    R4G4B4=input
     with tf.variable_scope('First_layers'):
         with tf.variable_scope('1-Feature_extraction'):
             output = tf.layers.conv2d(R4G4B4, n1, f1, strides=stride, padding='same', activation=None, kernel_initializer=My_initial, kernel_regularizer=My_regular)
@@ -87,5 +88,6 @@ def subpixel_new(input, is_training=True):# original structure with regularizer
         # 12 filters as we have to do the LR to HR
     with tf.variable_scope('Remaining_layers'):
         with tf.variable_scope('5-Reconstruction'):
-            output = tf.layers.conv2d_transpose(output, 12, f5, strides=stride, padding='same', kernel_initializer=My_initial, kernel_regularizer=My_regular)
-    return subpixel_LR2HR(output)
+            output = tf.layers.conv2d_transpose(output,3, f5, strides=stride, padding='same', kernel_initializer=My_initial, kernel_regularizer=My_regular)
+    # return subpixel_LR2HR(output)
+    return output

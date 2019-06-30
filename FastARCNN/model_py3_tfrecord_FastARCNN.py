@@ -13,6 +13,7 @@ class denoiser(object):
         self.lr = tf.placeholder(tf.float32, name='learning_rate')
        #self.lr2 = tf.placeholder(tf.float32, name='learning_rate2')
         
+        #self.Y = subpixel_new(self.X, is_training=self.is_training)
         self.Y = subpixel_new(self.X, is_training=self.is_training)
        #loss has to be mean squared error
         self.lossRGB = (1.0 /batch_size / patch_size / patch_size) * tf.nn.l2_loss(self.Y_ -self.Y)
@@ -120,7 +121,7 @@ class denoiser(object):
         load_model_status, global_step = self.load(ckpt_dir)
         assert load_model_status == True, '[!] Load weights FAILED...'
         print("[*] Load weights SUCCESS...")
-        for run in range(2): # for accurate running time evaluation, warming-up
+        for run in range(1): # for accurate running time evaluation, warming-up
             psnr_sum = 0
             psnr_initial_sum = 0
             test_sum = 0
@@ -128,9 +129,9 @@ class denoiser(object):
                 imagename = os.path.basename(test_files_gt[idx])
                 clean_image = load_images(test_files_gt[idx]).astype(np.float32)
                 _, w, h, _  = clean_image.shape
-                clean_image_crop = clean_image[:, 0:w//2*2, 0:h//2*2, :]
+                clean_image_crop = clean_image[:, 0:w//4*4, 0:h//4*4, :]
                 image_bayer = load_images(test_files_bl[idx]).astype(np.float32)
-                image_bayer_crop = image_bayer[:, 0:w//2*2, 0:h//2*2, :]
+                image_bayer_crop = image_bayer[:, 0:w//4*4, 0:h//4*4, :]
                 test_s_time = time.time()
                 output_clean_image = self.sess.run(self.Y, feed_dict={self.Y_: clean_image_crop, self.X: image_bayer_crop, self.is_training: False})
                 test_time = time.time()-test_s_time
