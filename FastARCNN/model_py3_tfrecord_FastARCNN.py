@@ -13,6 +13,7 @@ class denoiser(object):
         self.lr = tf.placeholder(tf.float32, name='learning_rate')
        #self.lr2 = tf.placeholder(tf.float32, name='learning_rate2')
         
+        #self.Y = subpixel_new(self.X, is_training=self.is_training)
         self.Y = subpixel_new(self.X, is_training=self.is_training)
        #loss has to be mean squared error
         self.lossRGB = (1.0 /batch_size / patch_size / patch_size) * tf.nn.l2_loss(self.Y_ -self.Y)
@@ -39,8 +40,8 @@ class denoiser(object):
             clean_image = test_data_gt[idx].astype(np.float32)
             bayer_image = test_data_bl[idx].astype(np.float32)
             _, w, h, _  = clean_image.shape
-            clean_image = clean_image[:, 0:w//4*4, 0:h//4*4, :]
-            bayer_image = bayer_image[:, 0:w//4*4, 0:h//4*4, :]
+            clean_image = clean_image[:, 0:w//2*2, 0:h//2*2, :]
+            bayer_image = bayer_image[:, 0:w//2*2, 0:h//2*2, :]
             val_st_time = time.time()
             #devuelve el output clean
             output_clean_image, noisy_image, psnr_summary = self.sess.run([self.Y, self.X, summary_merged], feed_dict={self.Y_: clean_image, self.X: bayer_image, self.is_training: False})
@@ -120,7 +121,7 @@ class denoiser(object):
         load_model_status, global_step = self.load(ckpt_dir)
         assert load_model_status == True, '[!] Load weights FAILED...'
         print("[*] Load weights SUCCESS...")
-        for run in range(2): # for accurate running time evaluation, warming-up
+        for run in range(1): # for accurate running time evaluation, warming-up
             psnr_sum = 0
             psnr_initial_sum = 0
             test_sum = 0
@@ -135,10 +136,24 @@ class denoiser(object):
                 output_clean_image = self.sess.run(self.Y, feed_dict={self.Y_: clean_image_crop, self.X: image_bayer_crop, self.is_training: False})
                 test_time = time.time()-test_s_time
 
-                if np.mod(w,2):
+                # if np.mod(w,4)==1:
+                #     output_clean_image = np.pad(output_clean_image, pad_width=((0,0),(0,1),(0,0),(0,0)), mode='symmetric')
+                if np.mod(w,2)==1:
                     output_clean_image = np.pad(output_clean_image, pad_width=((0,0),(0,1),(0,0),(0,0)), mode='symmetric')
-                if np.mod(h,2):
+                # elif np.mod(w,4)==2:
+                #     output_clean_image = np.pad(output_clean_image, pad_width=((0,0),(0,2),(0,0),(0,0)), mode='symmetric')
+                # elif np.mod(w,4)==3:
+                #     output_clean_image = np.pad(output_clean_image, pad_width=((0,0),(0,3),(0,0),(0,0)), mode='symmetric')
+                
+                # if np.mod(h,4)==1:
+                #     output_clean_image = np.pad(output_clean_image, pad_width=((0,0),(0,0),(0,1),(0,0)), mode='symmetric')
+                if np.mod(h,2)==1:
                     output_clean_image = np.pad(output_clean_image, pad_width=((0,0),(0,0),(0,1),(0,0)), mode='symmetric')
+                # elif np.mod(h,4)==2:
+                #     output_clean_image = np.pad(output_clean_image, pad_width=((0,0),(0,0),(0,2),(0,0)), mode='symmetric')
+                # elif np.mod(h,4)==3:
+                #     output_clean_image = np.pad(output_clean_image, pad_width=((0,0),(0,0),(0,3),(0,0)), mode='symmetric')
+                
                 
                 groundtruth = np.clip(clean_image, 0, 255).astype('uint8')
                 noisyimage = np.around(np.clip(image_bayer, 0, 255)).astype('uint8')
@@ -148,6 +163,10 @@ class denoiser(object):
                 psnr = imcpsnr(groundtruth, outputimage, 255, 10)
                 csnr = impsnr(groundtruth, outputimage, 255, 10)
                 print("Run%d, %s, Bilinear PSNR: %.2fdB, Final PSNR: %.2fdB, Time: %.4fs" % (run, imagename, psnr_bilinear, psnr, test_time))
+                print("Groundtruth:")
+                print(groundtruth.shape)
+                print("Output:")
+                print(outputimage.shape)
                 psnr_sum += psnr
                 psnr_initial_sum += psnr_bilinear
                 test_sum += test_time
