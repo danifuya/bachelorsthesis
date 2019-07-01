@@ -84,6 +84,7 @@ def subpixel_new(input, is_training=True):# original structure with regularizer
 
         with tf.variable_scope('4-Mapping'):
             output = tf.layers.conv2d(output, n4, f4, padding='valid', kernel_initializer=My_initial, kernel_regularizer=My_regular)
+            output = parametric_relu(output)
         #Deconvolution
         # 12 filters as we have to do the LR to HR
     with tf.variable_scope('Remaining_layers'):
