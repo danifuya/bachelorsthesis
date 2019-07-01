@@ -21,7 +21,7 @@ parser.add_argument('--checkpoint_dir', dest='ckpt_dir', default='./checkpoint',
 parser.add_argument('--sample_dir', dest='sample_dir', default='./sample', help='sample are saved here')
 parser.add_argument('--test_dir', dest='test_dir', default='./test', help='test sample are saved here')
 parser.add_argument('--eval_set', dest='eval_set', default='test', help='dataset for eval in training')
-parser.add_argument('--test_set', dest='test_set', default='deblocking', help='dataset for testing')
+parser.add_argument('--test_set', dest='test_set', default='test', help='dataset for testing')
 args = parser.parse_args()
 
 #weigth decay momentum optimizer
