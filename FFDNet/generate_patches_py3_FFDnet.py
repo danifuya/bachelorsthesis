@@ -10,7 +10,7 @@ from utils_py3_tfrecord import *
 parser = argparse.ArgumentParser(description='')
 parser.add_argument('--src_dir_label', dest='src_dir', default='../images/train/groundtruth', help='dir of ground truth data')
 parser.add_argument('--src_dir_bayer', dest='src_dir_bayer', default='../images/train/compressed_Q', help='dir of interpolated Bayer data')
-parser.add_argument('--Q', dest='quantization_step', default='20', help='quantization step ')
+parser.add_argument('--Q', dest='quantization_step', default='10', help='quantization step ')
 parser.add_argument('--save_dir', dest='save_dir', default='./patches', help='dir of patches')
 parser.add_argument('--patch_size', dest='pat_size', type=int, default=50, help='patch size')
 parser.add_argument('--stride', dest='stride', type=int, default=7, help='stride')
