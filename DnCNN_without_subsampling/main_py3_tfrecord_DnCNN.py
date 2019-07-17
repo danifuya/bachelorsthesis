@@ -9,7 +9,7 @@ from utils_py3_tfrecord import *
 
 parser = argparse.ArgumentParser(description='')
 parser.add_argument('--epoch', dest='epoch', type=int, default=50, help='# of epoch')
-parser.add_argument('--Q', dest='quantization_step', default='20', help='quantization step ')
+parser.add_argument('--Q', dest='quantization_step', default='10', help='quantization step ')
 parser.add_argument('--optimizer', dest='optimizer', default='Adam', help='optimizer')
 parser.add_argument('--batch_size', dest='batch_size', type=int, default=128, help='# images in batch')
 parser.add_argument('--lr', dest='lr', type=float, default=math.pow(10,-3), help='initial learning rate for adam')
@@ -37,8 +37,8 @@ def denoiser_train(denoiser, lr, eval_every_step, patch_size):
     denoiser.train(img_labelBatch, img_bayerBatch, eval_data_gt, eval_data_bl, batch_size=args.batch_size, ckpt_dir=args.ckpt_dir, lr=lr, sample_dir=args.sample_dir, eval_every_step=eval_every_step)
 
 def denoiser_test(denoiser):
-    test_files_gt =  sorted(glob('../images/{}/groundtruth/*'.format(args.test_set)))
-    test_files_bl =  sorted(glob(('../images/{}/compressed_Q' + args.quantization_step +'/*').format(args.test_set)))
+    test_files_gt =  sorted(glob('../images/{}/groundtruth_5/*'.format(args.test_set)))
+    test_files_bl =  sorted(glob(('../images/{}/compressed_Q' + args.quantization_step +'_5/*').format(args.test_set)))
     denoiser.test(test_files_gt, test_files_bl, ckpt_dir=args.ckpt_dir, save_dir=args.test_dir)
 
 def ensemble_test(denoiser):
